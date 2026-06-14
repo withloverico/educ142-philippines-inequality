@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Without Equity in Philippine Basic Education</title>
+<meta name="description" content="An interactive case study on educational inequality in the Philippines — Rico Bolos & Judy Kang, UC Berkeley EDUC C142.">
+<style>
+  /* ===== Nord palette — aquarel arctic_light / arctic_dark ===== */
+  :root{
+    --frost-deep:#5E81AC; --frost:#81A1C1; --frost-light:#88C0D0; --frost-teal:#8FBCBB;
+    --red:#BF616A; --orange:#D08770; --yellow:#EBCB8B; --green:#A3BE8C; --purple:#B48EAD;
+  }
+  html[data-theme="light"]{
+    --bg:#ECEFF4; --bg-2:#E5E9F0; --surface:#FFFFFF; --surface-2:#F7F9FC;
+    --ink:#2E3440; --ink-soft:#3B4252; --muted:#4C566A; --faint:#677693;
+    --border:#D8DEE9; --accent:#5E81AC; --accent-2:#8FBCBB;
+    --shadow:0 1px 3px rgba(46,52,64,.08),0 8px 24px rgba(46,52,64,.06);
+  }
+  html[data-theme="dark"]{
+    --bg:#2E3440; --bg-2:#272c36; --surface:#3B4252; --surface-2:#434C5E;
+    --ink:#ECEFF4; --ink-soft:#E5E9F0; --muted:#D8DEE9; --faint:#9aa6bd;
+    --border:#4C566A; --accent:#88C0D0; --accent-2:#8FBCBB;
+    --shadow:0 1px 3px rgba(0,0,0,.3),0 12px 32px rgba(0,0,0,.32);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+    transition:background .35s ease,color .35s ease;
+  }
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .wrap{max-width:860px; margin:0 auto; padding:0 24px;}
+
+  /* ===== Top nav ===== */
+  nav{
+    position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:saturate(140%) blur(10px); border-bottom:1px solid var(--border);
+  }
+  .nav-inner{max-width:1040px; margin:0 auto; padding:10px 24px; display:flex; align-items:center; gap:18px;}
+  .brand{font-weight:700; letter-spacing:.02em; font-size:.95rem; white-space:nowrap;}
+  .brand span{color:var(--accent);}
+  .nav-links{display:flex; gap:18px; margin-left:auto; overflow-x:auto;}
+  .nav-links a{color:var(--muted); font-size:.86rem; white-space:nowrap; padding:4px 0; border-bottom:2px solid transparent;}
+  .nav-links a:hover,.nav-links a.active{color:var(--ink); border-bottom-color:var(--accent); text-decoration:none;}
+  .toggle{
+    flex:none; cursor:pointer; border:1px solid var(--border); background:var(--surface);
+    color:var(--ink); border-radius:999px; padding:6px 12px; font-size:.8rem; display:flex; align-items:center; gap:7px;
+    transition:background .2s,border-color .2s;
+  }
+  .toggle:hover{border-color:var(--accent);}
+  .toggle .ico{width:15px; height:15px; display:inline-block;}
+  @media(max-width:720px){ .nav-links{display:none;} }
+
+  /* ===== Hero ===== */
+  header.hero{padding:84px 0 56px; border-bottom:1px solid var(--border); background:
+    radial-gradient(1200px 400px at 70% -10%, color-mix(in srgb,var(--frost-teal) 22%,transparent), transparent),
+    var(--bg);}
+  .eyebrow{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700;}
+  h1.title{font-size:clamp(2rem,5vw,3.1rem); line-height:1.08; margin:.35em 0 .1em; font-weight:800; letter-spacing:-.01em;}
+  h1.title em{font-style:italic; color:var(--accent); font-weight:800;}
+  .subtitle{font-size:clamp(1.05rem,2.2vw,1.35rem); color:var(--ink-soft); font-weight:500; margin:.1em 0 1.1em;}
+  .byline{color:var(--muted); font-size:.95rem;}
+  .lede{margin-top:1.4em; font-size:1.12rem; color:var(--ink-soft); border-left:3px solid var(--accent); padding-left:18px;}
+  .cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:28px;}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:11px 18px; border-radius:10px; font-weight:600; font-size:.92rem; border:1px solid var(--border); transition:transform .15s,box-shadow .2s,background .2s;}
+  .btn:hover{text-decoration:none; transform:translateY(-1px); box-shadow:var(--shadow);}
+  .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  html[data-theme="dark"] .btn.primary{color:#2E3440;}
+  .btn.ghost{background:var(--surface); color:var(--ink);}
+
+  /* ===== Sections ===== */
+  section{padding:60px 0; border-bottom:1px solid var(--border);}
+  .kicker{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:.4em;}
+  h2{font-size:clamp(1.5rem,3.4vw,2rem); margin:.1em 0 .5em; font-weight:750; letter-spacing:-.01em;}
+  h3{font-size:1.18rem; margin:2em 0 .2em; color:var(--ink); font-weight:700;}
+  p{margin:.7em 0;}
+  .muted{color:var(--muted);}
+
+  /* ===== Stat cards ===== */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin:28px 0;}
+  .stat{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 18px 16px; box-shadow:var(--shadow);}
+  .stat .num{font-size:2rem; font-weight:800; color:var(--accent); line-height:1;}
+  .stat .lbl{font-size:.86rem; color:var(--muted); margin-top:8px;}
+
+  /* ===== Figures ===== */
+  figure.chart{margin:30px 0; background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:var(--shadow);}
+  figure.chart img{display:block; width:100%; height:auto; cursor:zoom-in; background:var(--surface);}
+  figure.chart figcaption{padding:14px 18px; font-size:.9rem; color:var(--muted); border-top:1px solid var(--border);}
+  figure.chart figcaption b{color:var(--ink);}
+
+  /* ===== Callout ===== */
+  .callout{background:color-mix(in srgb,var(--yellow) 16%,var(--surface)); border:1px solid color-mix(in srgb,var(--yellow) 45%,var(--border)); border-radius:12px; padding:16px 18px; margin:24px 0; font-size:.95rem;}
+  .callout b{color:var(--ink);}
+
+  /* ===== Two-column scorecard ===== */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:24px 0;}
+  @media(max-width:680px){ .grid2{grid-template-columns:1fr;} }
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow);}
+  .panel h4{margin:0 0 .5em; font-size:1.02rem;}
+  .panel.good h4{color:var(--green);}
+  .panel.bad h4{color:var(--red);}
+  .panel ul{margin:.3em 0; padding-left:18px;}
+  .panel li{margin:.4em 0; color:var(--ink-soft); font-size:.93rem;}
+
+  /* ===== Policy cards ===== */
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:24px 0;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow);}
+  .card h4{margin:0 0 .35em; font-size:1.04rem; color:var(--ink);}
+  .card .tag{font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); font-weight:700;}
+  .card p{font-size:.9rem; color:var(--ink-soft); margin:.5em 0 0;}
+  .card .trade{font-size:.84rem; color:var(--muted); margin-top:.7em; border-top:1px dashed var(--border); padding-top:.6em;}
+
+  /* ===== Reveal animation ===== */
+  .reveal{opacity:0; transform:translateY(16px); transition:opacity .6s ease,transform .6s ease;}
+  .reveal.in{opacity:1; transform:none;}
+  @media(prefers-reduced-motion:reduce){ .reveal{opacity:1; transform:none; transition:none;} }
+
+  /* ===== References ===== */
+  details.refs{margin:18px 0; border:1px solid var(--border); border-radius:12px; background:var(--surface); padding:6px 18px;}
+  details.refs summary{cursor:pointer; font-weight:700; padding:12px 0; color:var(--ink);}
+  details.refs p{font-size:.85rem; color:var(--muted); padding-left:1.4em; text-indent:-1.4em; margin:.7em 0;}
+
+  /* ===== Lightbox ===== */
+  .lightbox{position:fixed; inset:0; background:rgba(20,24,32,.86); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; cursor:zoom-out;}
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:96vw; max-height:92vh; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.5);}
+
+  footer{padding:40px 0 64px; color:var(--muted); font-size:.86rem; text-align:center;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand">Access <span>without</span> Equity</div>
+    <div class="nav-links">
+      <a href="#hook">The table</a>
+      <a href="#overview">Overview</a>
+      <a href="#data">The data</a>
+      <a href="#sdg4">SDG 4</a>
+      <a href="#policy">Policy</a>
+      <a href="#ethics">Equity vs. efficiency</a>
+      <a href="#refs">References</a>
+    </div>
+    <button class="toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <span class="ico" id="themeIcon"></span><span id="themeLabel">Dark</span>
+    </button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">UC Berkeley · EDUC C142 · Education in a Global World</div>
+    <h1 class="title"><em>“Tayo ay nasa Fine-Dining Restaurant”</em></h1>
+    <div class="subtitle">Access Without Equity in Philippine Basic Education</div>
+    <div class="byline">A case study by <b>Rico Bolos</b> &amp; <b>Judy Kang</b> · Prof. Erin Murphy-Graham · June 2026</div>
+    <p class="lede">On paper, every Filipino child is seated at the same table. What each is actually served depends on household wealth and geography — so the promise of a shared education resolves into vastly unequal experiences of it. This study argues that educational marginalization in the Philippines is less a problem of <b>access</b> than of <b>quality and opportunity</b>.</p>
+    <div class="cta">
+      <a class="btn primary" href="#data">Explore the 14 figures ↓</a>
+      <a class="btn ghost" href="https://github.com/withloverico/educ142-philippines-inequality" target="_blank" rel="noopener">GitHub repository</a>
+      <a class="btn ghost" href="EDUC%20142%20-%20Philippines%20Case%20Study%20(Bolos,%20Kang).pdf" target="_blank" rel="noopener">Read the paper (PDF)</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="hook">
+  <div class="wrap reveal">
+    <div class="kicker">The fine-dining table</div>
+    <h2>A performance of a setting we don't quite occupy</h2>
+    <p>In late 2025, a clip of the vlogger Toni Fowler spread across Filipino social media. Pausing to deliver an impromptu lesson on manners, she insisted: <em>“Tayo ay nasa fine-dining restaurant”</em> — “we are at a fine-dining restaurant.” What made it spread was the mismatch: the comedy of insisting on the rituals of an elegant table while the reality around you looks nothing like one.</p>
+    <p>Philippine basic education invites a similar reading. The Enhanced Basic Education Act of 2013 guarantees schooling that is tuition-free and mandatory, and national enrollment remains relatively high. Everyone is seated. But what is served at that table — the quality of teaching, materials, and opportunity — is distributed by wealth and location, and that is where the equity collapses.</p>
+  </div>
+</section>
+
+<section id="overview">
+  <div class="wrap reveal">
+    <div class="kicker">The Philippines at a glance</div>
+    <h2>A lower-middle-income archipelago of stark contrasts</h2>
+    <div class="stats">
+      <div class="stat"><div class="num">112.7M</div><div class="lbl">Population, 2024 census</div></div>
+      <div class="stat"><div class="num">15.5%</div><div class="lbl">Poverty incidence (≈17.5M people), 2023</div></div>
+      <div class="stat"><div class="num">$4,470</div><div class="lbl">GNI per capita, just below upper-middle income</div></div>
+      <div class="stat"><div class="num">77 / 81</div><div class="lbl">Rank in the 2022 PISA assessment</div></div>
+      <div class="stat"><div class="num">~91%</div><div class="lbl">Of 10-year-olds cannot read an age-appropriate text</div></div>
+    </div>
+    <p class="muted">A K-12 system, officially free and compulsory, with relatively high primary enrollment — yet hardship is concentrated in rural and geographically isolated regions, and the central challenge lies in the quality of learning rather than access.</p>
+    <h3>Two divides shape everything</h3>
+    <p>Inequality in Philippine education is driven primarily by two axes. <b>Wealth:</b> higher-income households buy private or higher-quality schools, shadow education (private tutoring), devices, and internet, so attainment is steeply stratified by income. <b>Geography:</b> urban centers like Metro Manila have better-funded schools and qualified teachers, while rural and island communities face overcrowding, teacher shortages, and long travel distances — sharpest in geographically isolated disadvantaged areas (GIDAs).</p>
+  </div>
+</section>
+
+<section id="data">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="kicker">Quantitative analysis · 14 figures</div>
+      <h2>What the data show</h2>
+      <p class="muted">All figures are generated from the UNESCO World Inequality Database on Education (WIDE) and supplementary Philippine tourism statistics. Toggle the theme (top right) and every chart switches with the page, from aquarel <em>arctic_light</em> to <em>arctic_dark</em>. Click any figure to enlarge.</p>
+    </div>
+
+    <div class="reveal">
+      <h3>The national picture: access versus learning</h3>
+      <p>The central problem is not getting children into school but what happens once they are there. Primary completion is near-universal at ~92%, yet attainment erodes up the system — to 78% at lower secondary and 74% at upper secondary. Dropout is a cumulative process, not a single break point. More striking still: near-universal attendance coexists with a severe learning deficit.</p>
+    </div>
+    <figure class="chart reveal"><img data-file="01_education_funnel.png" alt="Education completion by level">
+      <figcaption><b>Figure 1. Education completion by level, 2017.</b> Completion falls from 92% (primary) to 78% (lower secondary) to 74% (upper secondary). Source: UNESCO WIDE / DHS 2017.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="02_schooling_vs_learning.png" alt="Schooling versus learning">
+      <figcaption><b>Figure 2. Schooling attainment versus learning.</b> Although 92% complete primary, only 17% reach minimum math proficiency and 10% reading by end of primary. Sources: DHS 2017; SEA-PLM 2019.</figcaption></figure>
+
+    <div class="reveal">
+      <h3>Inequality by household wealth</h3>
+      <p>Wealth is the strongest single predictor of how far a student goes. Completion rises monotonically with wealth, and the gap widens higher up: upper-secondary completion runs from just <b>37% (poorest) to 94% (richest)</b>. Learning is distributed even more unequally — minimum math proficiency climbs from 8% (Q2) to 44% (richest). And the gap is barely closing: from 2003–2017 the poorest–richest distance narrowed only from 66 to 56 points.</p>
+    </div>
+    <figure class="chart reveal"><img data-file="03_wealth_gradient_completion.png" alt="Completion by wealth quintile">
+      <figcaption><b>Figure 3. Completion by wealth quintile and level, 2017.</b> Upper-secondary completion ranges 37%→94% across quintiles. Source: UNESCO WIDE / DHS 2017.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="04_richpoor_learning_gap.png" alt="Learning gap by wealth">
+      <figcaption><b>Figure 4. Minimum proficiency by wealth quintile.</b> Math proficiency rises from 8% (Q2) to 44% (richest). Source: SEA-PLM 2019.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="08_wealth_gap_over_time.png" alt="Wealth gap over time">
+      <figcaption><b>Figure 8. Poorest vs. richest completion, 2003–2017.</b> Both rose, but the gap narrowed only 66→56 points. Source: DHS 2003–2017.</figcaption></figure>
+
+    <div class="reveal">
+      <h3>Geographic inequality: region and the rural divide</h3>
+      <p>Where a student is born matters almost as much as how wealthy their family is. Upper-secondary completion ranges from ~46% in BARMM to ~86% in the Cordillera — a 40-point gap, with the lowest performers clustered in Mindanao. Yet when wealth and location are examined together, <b>wealth dominates</b>: within each quintile, urban and rural completion are similar, while the poorest-to-richest gap is 55–60 points in both settings. The raw urban–rural divide largely reflects where poverty is concentrated.</p>
+    </div>
+    <figure class="chart reveal"><img data-file="06_regional_ranking.png" alt="Completion by region">
+      <figcaption><b>Figure 6. Upper-secondary completion by region, 2017.</b> 46% (BARMM) to 86% (Cordillera). Source: UNESCO WIDE / DHS 2017.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="07_wealth_location_heatmap.png" alt="Wealth by location heatmap">
+      <figcaption><b>Figure 7. Completion by wealth and location, 2017.</b> Wealth dominates; urban/rural differ little within a quintile. Source: UNESCO WIDE / DHS 2017.</figcaption></figure>
+
+    <div class="reveal">
+      <h3>Gender: a widening gap up the ladder</h3>
+      <p>A clear gender pattern emerges in the secondary years: the female–male completion gap widens from ~6 points at primary to ~12 points at upper secondary, with boys falling further behind. Disaggregating by location and sex, <b>rural boys are the single most disadvantaged group</b>. The pattern is consistent with boys leaving school earlier to enter the labor market — though the data record only that boys leave, not why.</p>
+    </div>
+    <figure class="chart reveal"><img data-file="14_boys_leave_earlier.png" alt="Completion by sex and level">
+      <figcaption><b>Figure 14. Completion by sex and level, 2017.</b> The female–male gap widens 6→12 points. A signal, not proof. Source: UNESCO WIDE / DHS 2017.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="05_urban_rural_gender.png" alt="Completion and learning by location and sex">
+      <figcaption><b>Figure 5. Completion and learning by location and sex.</b> Rural boys lag most on both completion and math proficiency. Sources: DHS 2017; SEA-PLM 2019.</figcaption></figure>
+
+    <div class="reveal">
+      <h3>Tourism and early labor-market entry: an exploratory thread</h3>
+      <p>What pulls students out before completion? One candidate in a service-driven economy is early entry into tourism-related labor. A 2024 survey of 400 stakeholders in Surigao del Norte rated job creation the top economic impact of rural tourism (3.29/4), while flagging “unskilled workers” (3.10) and “seasonality” (3.05) as key challenges — the human-capital and irregular-labor dynamics that can draw young people into low-wage work. Nationally, tourism's GDP share peaked near 13% in 2019, and its employment share (~15%) consistently exceeds its GDP share, signalling labor-intensive work. Tourism employment and upper-secondary completion rose together over 2000–2019.</p>
+    </div>
+    <div class="callout reveal"><b>Read with caution.</b> The co-movement in Figure 13 is a <b>co-trend only — not causal evidence</b>. It is confounded by general economic growth and the K-12 reform (Senior High School from 2016). Figure 11 is geographic context, not a statistical correlation. Establishing any genuine tourism–schooling link would require regional tourism and child-labor data that are not yet available.</div>
+    <figure class="chart reveal"><img data-file="09_tourism_economic_impact.png" alt="Perceived economic impacts of rural tourism">
+      <figcaption><b>Figure 9. Perceived economic impacts of rural tourism, Surigao del Norte.</b> Job creation rated highest (3.29/4). Perception survey (n=400). Source: Supera et al. (2024), JEFMS 7(6).</figcaption></figure>
+    <figure class="chart reveal"><img data-file="10_tourism_challenges.png" alt="Perceived challenges of rural tourism">
+      <figcaption><b>Figure 10. Perceived challenges of rural tourism.</b> “Unskilled workers” (3.10) and “seasonality” (3.05) rank high. Source: Supera et al. (2024), JEFMS 7(6).</figcaption></figure>
+    <figure class="chart reveal"><img data-file="12_tourism_economic_weight.png" alt="Tourism share of GDP and employment">
+      <figcaption><b>Figure 12. Tourism share of GDP and employment, 2000–2025.</b> GDP share peaked ~13% (2019); employment share (~15%) exceeds it. Source: PSA Tourism Satellite Accounts.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="13_national_cotrend.png" alt="Tourism employment and completion co-trend">
+      <figcaption><b>Figure 13. Tourism employment and upper-secondary completion, 2000–2019.</b> The series rise together — a co-trend only. Sources: PSA PTSA; UNESCO WIDE.</figcaption></figure>
+    <figure class="chart reveal"><img data-file="11_caraga_spotlight.png" alt="Caraga versus national completion">
+      <figcaption><b>Figure 11. Completion, Caraga vs. national, 2008–2017.</b> Caraga (containing the study area) tracked below the national rate. Geographic context only. Source: UNESCO WIDE / DHS.</figcaption></figure>
+  </div>
+</section>
+
+<section id="sdg4">
+  <div class="wrap reveal">
+    <div class="kicker">Sustainable Development Goal 4</div>
+    <h2>Access met, quality and equity unmet</h2>
+    <p>SDG 4 commits countries to “inclusive and equitable quality education … for all.” The Philippine record is genuinely mixed: the country has largely solved <b>access</b> while falling short on <b>quality</b> and <b>equity</b>.</p>
+    <div class="grid2">
+      <div class="panel good">
+        <h4>✓ Progress</h4>
+        <ul>
+          <li>Near-universal primary completion (~92%) satisfies the access aim of target 4.1 (Fig 1).</li>
+          <li>Attainment rose for poorest and richest alike, 2003–2017 (Fig 8).</li>
+          <li>The 4Ps conditional cash transfer keeps poor children enrolled.</li>
+          <li>Gender parity favors girls at every level (Fig 14).</li>
+        </ul>
+      </div>
+      <div class="panel bad">
+        <h4>✕ Still lacking</h4>
+        <ul>
+          <li>Indicator 4.1.1: only ~17% (math) / 10% (reading) reach minimum proficiency (Fig 2).</li>
+          <li>Target 4.5: steep wealth stratification — 37% vs 94% completion (Figs 3–4).</li>
+          <li>40-point regional gap, BARMM to Cordillera (Fig 6).</li>
+          <li>A reverse parity gap: boys falling behind through secondary (Fig 14).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="policy">
+  <div class="wrap reveal">
+    <div class="kicker">Policy &amp; practice</div>
+    <h2>Four targeted interventions — each with trade-offs</h2>
+    <div class="cards">
+      <div class="card"><div class="tag">Demand-side</div><h4>Conditional cash transfers</h4><p>Expand the 4Ps, tying assistance to attendance to lower the opportunity cost of schooling.</p><div class="trade">Needs stable funding, tight targeting, and monitoring to prevent misuse.</div></div>
+      <div class="card"><div class="tag">Supply-side</div><h4>Rural infrastructure &amp; teachers</h4><p>Invest in remote schools and teacher distribution to lift both access and quality.</p><div class="trade">Costly; incentives for rural teachers raise fiscal pressure and efficiency questions.</div></div>
+      <div class="card"><div class="tag">Wellbeing</div><h4>School feeding programs</h4><p>Meals improve attendance, concentration, and health where poverty and malnutrition are high.</p><div class="trade">Requires sustained logistics; limited without broader reform.</div></div>
+      <div class="card"><div class="tag">Equity</div><h4>Regulating shadow education</h4><p>Subsidized tutoring or after-school support could level a field currently set by income.</p><div class="trade">May face resistance from private providers; hard to implement well.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="ethics">
+  <div class="wrap reveal">
+    <div class="kicker">Structural &amp; ethical questions</div>
+    <h2>Equity versus efficiency</h2>
+    <p>Educational inequality stages a fundamental tension. Equity-focused policies — cash transfers, rural investment, feeding programs — directly target the disadvantaged, but can cost more and yield lower immediate returns than concentrating resources in already-strong urban schools. A purely efficiency-based approach, however, risks reinforcing inequality by rewarding those already ahead.</p>
+    <p>A balanced approach is therefore necessary: targeted interventions for the most vulnerable, paired with stronger governance, transparency, and monitoring so that spending achieves its intended outcomes. Reducing educational inequality is not only a matter of fairness but of long-term economic development — and complementary strategies like rural tourism can support household income, provided we read their effects honestly. Well-designed policy can align equity and efficiency rather than treat them as mutually exclusive.</p>
+  </div>
+</section>
+
+<section id="refs">
+  <div class="wrap reveal">
+    <div class="kicker">Sources &amp; disclosures</div>
+    <h2>References &amp; appendices</h2>
+    <details class="refs">
+      <summary>Full reference list (APA)</summary>
+      <p>Bangko Sentral ng Pilipinas. (2025). <i>Personal remittances reach an all-time high of US$38.34 billion in 2024</i> [Media release]. https://www.bsp.gov.ph</p>
+      <p>Department of Social Welfare and Development. (n.d.). <i>Pantawid Pamilyang Pilipino Program (4Ps)</i>.</p>
+      <p>Enhanced Basic Education Act of 2013, Republic Act No. 10533 (2013). Official Gazette of the Republic of the Philippines.</p>
+      <p>National Mapping and Resource Information Authority. (2016). <i>Updated official island count of the Philippines: 7,641 islands</i>.</p>
+      <p>OECD. (2023). <i>PISA 2022 results (Volume I and II): Country notes — Philippines</i>. OECD Publishing.</p>
+      <p>Philippine Statistics Authority. (2024). <i>2023 full year official poverty statistics of the Philippines</i>.</p>
+      <p>Philippine Statistics Authority. (2025a). <i>2024 Census of Population (POPCEN)…</i></p>
+      <p>Philippine Statistics Authority. (2025b). <i>Philippine tourism satellite accounts (PTSA): Statistical tables, 2000–2024</i>.</p>
+      <p>Philippine Statistics Authority, &amp; ICF. (2018). <i>Philippines national demographic and health survey 2017</i>. PSA and ICF.</p>
+      <p>Supera, M., Guerra, E., Villamar, E., &amp; Saranza, C. (2024). Rural tourism development in the Philippines. <i>Journal of Economics, Finance and Management Studies, 7</i>(6), 3307–3322.</p>
+      <p>UNESCO Global Education Monitoring Report. (2023). <i>World Inequality Database on Education (WIDE)</i> [Data set].</p>
+      <p>UNICEF, &amp; Southeast Asian Ministers of Education Organization. (2020). <i>SEA-PLM 2019 main regional report</i>. UNICEF &amp; SEAMEO.</p>
+      <p>World Bank. (2022). <i>The state of global learning poverty: 2022 update</i>.</p>
+      <p>World Bank. (2025). <i>World Bank country and lending groups</i>.</p>
+    </details>
+    <details class="refs">
+      <summary>Appendix A — Data &amp; code availability</summary>
+      <p style="text-indent:0;padding-left:0">All figures were generated from UNESCO WIDE, the underlying DHS and SEA-PLM 2019 assessment, and Philippine tourism statistics. The data extract, the analysis script (<code>build_charts.py</code>), and all 14 figures are public at <a href="https://github.com/withloverico/educ142-philippines-inequality">github.com/withloverico/educ142-philippines-inequality</a>.</p>
+    </details>
+    <details class="refs">
+      <summary>Appendix B — AI use disclosure</summary>
+      <p style="text-indent:0;padding-left:0">We used Claude (Anthropic) to write the figure-generation script, style the charts, draft figure captions, and format citations, and to review the manuscript for clarity and concision; the text of the paper is largely human-written. The analytical framing, interpretation, source selection, and final writing decisions were our own, and we verified all statistics and citations before inclusion.</p>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    Rico Bolos &amp; Judy Kang · UC Berkeley EDUC C142 · June 2026 ·
+    <a href="https://github.com/withloverico/educ142-philippines-inequality">source &amp; data on GitHub</a><br>
+    Charts styled with the aquarel <i>arctic</i> (Nord) theme · light &amp; dark variants.
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+
+<script>
+(function(){
+  var root=document.documentElement, KEY="aweq-theme";
+  var sun='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>';
+  var moon='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>';
+  var icon=document.getElementById('themeIcon'), label=document.getElementById('themeLabel');
+
+  function applyTheme(t){
+    root.setAttribute('data-theme', t);
+    var dark = t==='dark';
+    // swap every chart image to its light/dark twin
+    document.querySelectorAll('figure.chart img').forEach(function(img){
+      var f = img.getAttribute('data-file');
+      img.src = (dark ? 'charts/dark/' : 'charts/') + f;
+    });
+    icon.innerHTML = dark ? sun : moon;        // show the action, not the state
+    label.textContent = dark ? 'Light' : 'Dark';
+  }
+  // initial: stored choice, else system preference
+  var stored = localStorage.getItem(KEY);
+  var initial = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(initial);
+
+  document.getElementById('themeToggle').addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    localStorage.setItem(KEY, next);
+    applyTheme(next);
+  });
+
+  // Lightbox
+  var lb=document.getElementById('lightbox'), lbImg=document.getElementById('lightboxImg');
+  document.querySelectorAll('figure.chart img').forEach(function(img){
+    img.addEventListener('click', function(){ lbImg.src=img.src; lb.classList.add('open'); });
+  });
+  lb.addEventListener('click', function(){ lb.classList.remove('open'); lbImg.src=''; });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ lb.classList.remove('open'); } });
+
+  // Reveal on scroll
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // Scroll-spy nav
+  var links=[].slice.call(document.querySelectorAll('.nav-links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  var spy=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var i=secs.indexOf(en.target);
+        if(i>-1) links[i].classList.add('active');
+      }
+    });
+  },{rootMargin:"-45% 0px -50% 0px"});
+  secs.forEach(function(s){ if(s) spy.observe(s); });
+})();
+</script>
+</body>
+</html>

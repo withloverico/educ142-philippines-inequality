@@ -8,6 +8,11 @@ sex**, and to explore tourism-linked early labor-market entry as one possible ch
 
 `build_charts.py` reproduces all 14 figures from the data in `data/` and `sources/`.
 
+**Interactive site:** `index.html` is a single-file companion website (deployable via GitHub
+Pages) that walks through the paper and embeds all 14 figures. It has a light/dark toggle that
+switches the whole page — and every chart — between the aquarel `arctic_light` and `arctic_dark`
+renders (the dark PNGs live in `charts/dark/`).
+
 ---
 
 ## Repository structure

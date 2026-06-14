@@ -36,19 +36,30 @@ from aquarel import load_theme  # noqa: E402
 # ----------------------------------------------------------------------------
 FONT_FAMILY = "DejaVu Sans"  # fallback; replaced by Helvetica-Narrow if registered
 
+# Output directory + theme-aware accent colors. These are reset by setup_style()
+# for each theme so the same chart code renders correctly in both light and dark.
+OUTDIR = CHARTS
+MUTE = "#677693"    # captions / muted bars (light slate on dark, dark slate on light)
+ACCENT = "#4C566A"  # reference lines, markers, annotations
 
-def setup_style():
-    """Apply the aquarel arctic_light theme and the Helvetica Narrow font."""
-    global FONT_FAMILY
+
+def setup_style(theme="arctic_light"):
+    """Apply an aquarel arctic theme (light or dark) and the Helvetica Narrow font."""
+    global FONT_FAMILY, MUTE, ACCENT
     for f in glob.glob(os.path.join(FONT_DIR, "Helvetica-Narrow*.ttf")):
         fm.fontManager.addfont(f)
         FONT_FAMILY = fm.FontProperties(fname=f).get_name()  # "Helvetica-Narrow"
-    load_theme("arctic_light").apply()  # rcParams only; transforms not applied
+    load_theme(theme).apply()  # rcParams only; transforms not applied
+    dark = theme.endswith("dark")
+    # accents that must stay legible against the theme's plot background
+    MUTE = "#C8CEDA" if dark else "#677693"
+    ACCENT = "#D8DEE9" if dark else "#4C566A"
     plt.rcParams.update({
         "figure.dpi": 110,
         "savefig.dpi": 200,
         "savefig.bbox": "tight",
-        "savefig.facecolor": "white",
+        # match the saved background to the theme so dark charts export dark
+        "savefig.facecolor": "#3B4252" if dark else "white",
         "font.family": "sans-serif",
         "font.sans-serif": [FONT_FAMILY, "Helvetica Neue", "Arial", "DejaVu Sans"],
         "axes.titleweight": "bold",
@@ -100,13 +111,13 @@ def add_caption(ax, src, y=-0.12):
     # Placed in axes coordinates so it always clears the x-label / any note above it.
     # Pass a lower (more negative) y on charts that carry a multi-line explanatory note.
     ax.text(0.0, y, CAPTION.format(src=src), transform=ax.transAxes, ha="left",
-            va="top", fontsize=10, style="italic", color="#677693")
+            va="top", fontsize=10, style="italic", color=MUTE)
 
 
 def add_caption_raw(ax, text, y=-0.12):
     """Caption without the UNESCO WIDE prefix (for non-WIDE source charts)."""
     ax.text(0.0, y, text, transform=ax.transAxes, ha="left",
-            va="top", fontsize=9.5, style="italic", color="#677693")
+            va="top", fontsize=9.5, style="italic", color=MUTE)
 
 
 def pct_axis(ax, axis="y"):
@@ -115,7 +126,7 @@ def pct_axis(ax, axis="y"):
 
 
 def save(fig, name):
-    path = os.path.join(CHARTS, name)
+    path = os.path.join(OUTDIR, name)
     fig.savefig(path)
     plt.close(fig)
     print(f"  saved {name}")
@@ -252,7 +263,7 @@ def chart4(df):
     ax.set_title("Minimum proficiency by wealth quintile, end of primary"
                  "")
     ax.text(0.0, -0.16, "Note: SEA-PLM 2019 reports no estimate for the poorest quintile (Q1).",
-            transform=ax.transAxes, va="top", fontsize=10, color="#677693")
+            transform=ax.transAxes, va="top", fontsize=10, color=MUTE)
     add_caption(ax, "SEA-PLM 2019 (end of primary)", y=-0.21)
     save(fig, "04_richpoor_learning_gap.png")
 
@@ -292,7 +303,7 @@ def chart5(df):
         ax.set_ylim(0, ymax)
         pct_axis(ax, "y")
         ax.set_title(title, fontsize=15)
-        ax.text(0.5, -0.13, src, transform=ax.transAxes, ha="center", fontsize=10, color="#677693")
+        ax.text(0.5, -0.13, src, transform=ax.transAxes, ha="center", fontsize=10, color=MUTE)
     axes[0].legend(title="Sex", loc="lower left")
     fig.suptitle("Completion and learning by location and sex",
                  fontweight="bold", fontsize=18, y=1.02)
@@ -334,8 +345,8 @@ def chart6(df):
     for yi, v in zip(y, r["comp_upsec_v2_m"]):
         ax.text(v + 0.008, yi, f"{v*100:.0f}%", va="center", fontsize=11)
     nat = grab(df, "DHS", 2017, "Total", "comp_upsec_v2_m")["comp_upsec_v2_m"].iloc[0]
-    ax.axvline(nat, color="#4C566A", ls="--", lw=1.5)
-    ax.text(nat + 0.005, 0.2, f"National {nat*100:.0f}%", color="#4C566A", fontsize=11, rotation=90, va="bottom")
+    ax.axvline(nat, color=ACCENT, ls="--", lw=1.5)
+    ax.text(nat + 0.005, 0.2, f"National {nat*100:.0f}%", color=ACCENT, fontsize=11, rotation=90, va="bottom")
     handles = [plt.Rectangle((0, 0), 1, 1, color=c) for c in ISLAND_COLORS.values()]
     ax.legend(handles, ISLAND_COLORS.keys(), title="Island group", loc="lower right")
     ax.set_xlabel("Upper-secondary completion rate")
@@ -436,8 +447,8 @@ ECON_CHALLENGE = [  # Table 5 (+ key Table 6 item) — Perceived challenges (mea
 
 def _tourism_band(ax):
     ax.axvline(3.25, color="#A3BE8C", ls="--", lw=1.2)
-    ax.axvline(2.50, color="#677693", ls=":", lw=1.0)
-    ax.text(3.25, ax.get_ylim()[1], " Very High", color="#4C566A", fontsize=9, va="bottom")
+    ax.axvline(2.50, color=MUTE, ls=":", lw=1.0)
+    ax.text(3.25, ax.get_ylim()[1], " Very High", color=ACCENT, fontsize=9, va="bottom")
 
 
 def chart9():
@@ -466,7 +477,7 @@ def chart10():
     labels = [i[0] for i in items]
     vals = [i[1] for i in items]
     bridge = {"Untrained / unskilled tourism workers", "Seasonality of tourism business"}
-    colors = ["#BF616A" if labels[i] in bridge else "#677693" for i in range(len(labels))]
+    colors = ["#BF616A" if labels[i] in bridge else MUTE for i in range(len(labels))]
     fig, ax = plt.subplots(figsize=(11, 6.4))
     y = np.arange(len(items))
     ax.barh(y, vals, color=colors)
@@ -503,11 +514,11 @@ def chart11(df):
     car, nat = np.array(car, float), np.array(nat, float)
 
     fig, ax = plt.subplots(figsize=(11, 6.2))
-    ax.plot(years, nat, "-o", color="#4C566A", lw=3, label="National")
+    ax.plot(years, nat, "-o", color=ACCENT, lw=3, label="National")
     ax.plot(years, car, "-o", color="#D08770", lw=3, label="Caraga (incl. Surigao del Norte)")
     for yr, c, n in zip(years, car, nat):
         ax.text(yr, c - 0.045, f"{c*100:.0f}%", ha="center", color="#D08770", fontsize=12, fontweight="bold")
-        ax.text(yr, n + 0.02, f"{n*100:.0f}%", ha="center", color="#4C566A", fontsize=12)
+        ax.text(yr, n + 0.02, f"{n*100:.0f}%", ha="center", color=ACCENT, fontsize=12)
     ax.set_xticks(years)
     ax.set_ylim(0.4, 0.85)
     pct_axis(ax, "y")
@@ -518,7 +529,7 @@ def chart11(df):
                  "")
     ax.text(0.0, -0.155, "Caraga is the WIDE region containing Surigao del Norte (Supera et al. 2024 study area). "
             "Shown as geographic\ncontext for the tourism work, not a statistical correlation with tourism activity.",
-            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color="#677693")
+            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color=MUTE)
     add_caption(ax, "DHS 2008, 2013, 2017", y=-0.24)
     save(fig, "11_caraga_spotlight.png")
 
@@ -573,7 +584,7 @@ def chart12(p):
                  "")
     ax.text(0.0, -0.16, "Tourism employs a larger share of workers (~15%) than it contributes to GDP (~13% at the "
             "2019 peak), consistent with\nlower-productivity, service-sector work.",
-            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color="#677693")
+            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color=MUTE)
     add_caption_raw(ax, "Source: PSA Philippine Tourism Satellite Accounts (PTSA), Tables 7 & 10, current prices.", y=-0.24)
     save(fig, "12_tourism_economic_weight.png")
 
@@ -640,7 +651,7 @@ def chart14(df):
         gap = (fvi - mvi) * 100
         ax.annotate(f"−{gap:.0f} pt gap", xy=(xi, max(fvi, mvi) + 0.05), ha="center",
                     fontsize=10.5, fontweight="bold", color=NORD["red"],
-                    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec=NORD["red"], lw=0.8))
+                    bbox=dict(boxstyle="round,pad=0.25", fc="#ECEFF4", ec=NORD["red"], lw=0.8))
     ax.set_xticks(x)
     ax.set_xticklabels([l for l, _ in levels])
     ax.set_ylim(0, 1.12)
@@ -651,7 +662,7 @@ def chart14(df):
                  "")
     ax.text(0.0, -0.15, "The female–male completion gap grows from 6 pts (primary) to 12 pts (upper secondary): "
             "consistent with boys being\npulled into early work. Note: a signal, not proof; WIDE does not record reason for leaving.",
-            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color=NORD["mute"])
+            transform=ax.transAxes, va="top", fontsize=9.5, style="italic", color=MUTE)
     add_caption(ax, "DHS 2017", y=-0.23)
     save(fig, "14_boys_leave_earlier.png")
 
@@ -684,26 +695,36 @@ Survey of 400 stakeholders in Surigao del Norte. Use only in the motivation/mech
 13. **13_national_cotrend.png** — Tourism employment vs upper-sec completion, 2000–2019. A co-trend ONLY — explicitly NOT causal (confounded by growth + K-12). The regional scatter remains the real test and needs regional tourism data.
 14. **14_boys_leave_earlier.png** — Bivariate (gender). Completion by sex across levels; the female–male gap widens through secondary — the in-data fingerprint of early labor-market entry.
 
-_Styling: aquarel `arctic_light` (Nord) theme, Helvetica Narrow font._
+_Styling: aquarel `arctic_light` (Nord) theme, Helvetica Narrow font.
+Dark-mode versions of every chart are in `charts/dark/` (aquarel `arctic_dark`)._
 """
 
 
-def main():
-    setup_style()
-    df = load_phl()
-    print("Rendering charts ...")
+def render_all(df, p):
+    """Render the full 14-chart set into the current OUTDIR / theme."""
     chart1(df); chart2(df); chart3(df); chart4(df)
     chart5(df); chart6(df); chart7(df); chart8(df)
-    print("Rendering early-labor / gender chart (14) ...")
     chart14(df)
-    print("Rendering tourism context charts (9-10) and study-area spotlight (11) ...")
     chart9(); chart10(); chart11(df)
-    print("Rendering national PTSA tourism charts (12-13) ...")
-    p = load_ptsa()
     chart12(p); chart13(p, df)
+
+
+def main():
+    global OUTDIR
+    df = load_phl()
+    p = load_ptsa()
+    # Render the same charts twice: light into charts/, dark into charts/dark/.
+    for theme, outdir in [("arctic_light", CHARTS),
+                          ("arctic_dark", os.path.join(CHARTS, "dark"))]:
+        os.makedirs(outdir, exist_ok=True)
+        OUTDIR = outdir
+        setup_style(theme)
+        print(f"Rendering 14 charts with {theme} -> {outdir}")
+        render_all(df, p)
+    OUTDIR = CHARTS
     with open(os.path.join(CHARTS, "README.md"), "w") as fh:
         fh.write(README)
-    print(f"Done. 14 PNGs + README in {CHARTS}")
+    print(f"Done. 14 light + 14 dark PNGs + README in {CHARTS}")
 
 
 if __name__ == "__main__":
